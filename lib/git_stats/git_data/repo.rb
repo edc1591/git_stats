@@ -51,9 +51,8 @@ module GitStats
       end
 
       def commits
-        emails = author_emails.map { |email| email.downcase }
         @commits ||= run_and_parse("git rev-list --pretty=format:'%H|%at|%ai|%aE' #{commit_range} #{tree_path} | grep -v commit")
-        .select { |commit_line| emails.include?(commit_line[:author_email].downcase) }
+        .select { |commit_line| authors.select { |a| a.email == commit_line[:author_email] } .count > 0 }
         .map { |commit_line| Commit.new(
               repo: self,
               sha: commit_line[:sha],
